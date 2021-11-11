@@ -24,7 +24,7 @@ from .init import *
 from .utils.train_test import standard_epoch, standard_test
 
 
-@hydra.main(config_path="/Users/metehan/Desktop/hebbian/src/configs", config_name="mnist")
+@hydra.main(config_path="/home/metehan/hebbian/src/configs", config_name="mnist")
 def main(cfg: DictConfig) -> None:
 
     print(OmegaConf.to_yaml(cfg))

@@ -1,6 +1,6 @@
-directory: "~/Desktop/hebbian/"
+directory: "/home/metehan/hebbian/"
 tensorboard_location: "statistics/"
-data_dir: "~/data/datasets"
+data_dir: "/data/datasets"
 dataset: "mnist"
 
 nn:

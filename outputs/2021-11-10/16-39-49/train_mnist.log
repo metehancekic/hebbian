@@ -1,0 +1,20 @@
+[2021-11-10 16:39:49,308][src.init][INFO] - T_LeNet(
+  (img): Identity()
+  (conv1): Conv2d(1, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+  (relu1): ReLU()
+  (conv2): Conv2d(32, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+  (relu2): TReLU(64)
+  (fc1): Linear(in_features=3136, out_features=1024, bias=False)
+  (relu3): TReLU(1024)
+  (fc2): Linear(in_features=1024, out_features=10, bias=True)
+)
+[2021-11-10 16:39:49,309][src.init][INFO] - Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 1e-08
+    weight_decay: 0.0
+)
+[2021-11-10 16:39:49,309][src.init][INFO] - None
+[2021-11-10 16:39:49,309][src.init][INFO] -  Number of total trainable parameters: 3273546

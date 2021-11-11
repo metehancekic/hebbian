@@ -1,0 +1,27 @@
+directory: "~/Desktop/hebbian/"
+tensorboard_location: "statistics/"
+data_dir: "~/data/datasets"
+dataset: "mnist"
+
+nn:
+  classifier: "T_LeNet"
+  lr: 0.001
+  lr_min: 0.0
+  lr_max: 0.001
+  momentum: 0.9
+  weight_decay: 0.0
+  optimizer: "adam"
+  scheduler: "none"
+  
+train:
+  batch_size: 128
+  epochs: 20
+  regularizer: "hebbian_1.0"
+  
+test:
+  batch_size: 1000
+
+no_cuda: false
+seed: 2022
+log_interval: 10
+no_tensorboard: true

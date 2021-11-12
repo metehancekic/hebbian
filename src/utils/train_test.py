@@ -48,8 +48,14 @@ def standard_epoch(model, train_loader, optimizer, scheduler=None, verbose: bool
         tobe_regularized = {key: value for key, value in model.layer_outputs.items() if key in [
             "relu1"]}
 
+        tobe_regularized2 = {key: value for key, value in model.layer_outputs.items() if key in [
+            "relu2"]}
+
         loss -= 1.0 * torch.mean(saliency_K(features=tobe_regularized,
-                                            K=5, saliency_lambda=0.5, dim=1))
+                                            K=5, saliency_lambda=0.1, dim=1))
+
+        loss -= 1.0 * torch.mean(saliency_K(features=tobe_regularized2,
+                                            K=5, saliency_lambda=0.1, dim=1))
 
         loss.backward()
         optimizer.step()

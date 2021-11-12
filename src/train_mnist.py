@@ -39,7 +39,7 @@ def main(cfg: DictConfig) -> None:
     train_loader, test_loader, data_params = init_dataset(cfg)
     model = init_classifier(cfg).to(device)
 
-    model = LayerOutputExtractor_wrapper(model, layer_names=["img", "relu1"])
+    model = LayerOutputExtractor_wrapper(model, layer_names=["img", "relu1", "relu2"])
     logger = init_logger(cfg, model.name())
 
     if not cfg.no_tensorboard:
@@ -56,6 +56,9 @@ def main(cfg: DictConfig) -> None:
 
     weight_list = [None]*(cfg.train.epochs+1)
     weight_list[0] = model.conv1.weight.detach().cpu()
+
+    weight_list2 = [None]*(cfg.train.epochs+1)
+    weight_list2[0] = model.conv2.weight.detach().cpu()
     for epoch in range(1, cfg.train.epochs+1):
         start_time = time.time()
         tr_loss, tr_acc = standard_epoch(model=model, train_loader=train_loader,
@@ -70,8 +73,10 @@ def main(cfg: DictConfig) -> None:
             logger.info(f'Test  \t loss: {test_loss:.4f} \t acc: {test_acc:.4f}')
 
         weight_list[epoch] = model.conv1.weight.detach().cpu()
+        weight_list2[epoch] = model.conv2.weight.detach().cpu()
 
     save_gif(weight_list, filepath=cfg.directory + "gifs")
+    save_gif(weight_list2, filepath=cfg.directory + "gifs/second_layer")
 
 
 #     # Save checkpoint

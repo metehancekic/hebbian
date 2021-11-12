@@ -1,0 +1,42 @@
+[2021-11-11 11:43:16,118][src.init][INFO] - T_LeNet(
+  (img): Identity()
+  (conv1): Conv2d(1, 50, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+  (relu1): ReLU()
+  (conv2): Conv2d(50, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+  (relu2): TReLU(64)
+  (fc1): Linear(in_features=3136, out_features=100, bias=False)
+  (relu3): TReLU(100)
+  (fc2): Linear(in_features=100, out_features=10, bias=True)
+)
+[2021-11-11 11:43:16,119][src.init][INFO] - Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.001
+    weight_decay: 0.0
+)
+[2021-11-11 11:43:16,119][src.init][INFO] - None
+[2021-11-11 11:43:16,120][src.init][INFO] -  Number of total trainable parameters: 395860
+[2021-11-11 11:43:22,797][src.init][INFO] - 1 	 7 	 -0.5141 	 0.9479
+[2021-11-11 11:43:28,168][src.init][INFO] - 2 	 5 	 -0.7294 	 0.9827
+[2021-11-11 11:43:33,902][src.init][INFO] - 3 	 6 	 -0.7517 	 0.9878
+[2021-11-11 11:43:39,308][src.init][INFO] - 4 	 5 	 -0.7629 	 0.9895
+[2021-11-11 11:43:45,002][src.init][INFO] - 5 	 6 	 -0.7698 	 0.9914
+[2021-11-11 11:43:50,517][src.init][INFO] - 6 	 6 	 -0.7754 	 0.9922
+[2021-11-11 11:43:56,258][src.init][INFO] - 7 	 6 	 -0.7794 	 0.9934
+[2021-11-11 11:44:01,709][src.init][INFO] - 8 	 5 	 -0.7821 	 0.9939
+[2021-11-11 11:44:07,040][src.init][INFO] - 9 	 5 	 -0.7853 	 0.9953
+[2021-11-11 11:44:12,585][src.init][INFO] - 10 	 6 	 -0.7822 	 0.9941
+[2021-11-11 11:44:13,541][src.init][INFO] - Test  	 loss: 0.0326 	 acc: 0.9895
+[2021-11-11 11:44:19,299][src.init][INFO] - 11 	 6 	 -0.7860 	 0.9952
+[2021-11-11 11:44:25,081][src.init][INFO] - 12 	 6 	 -0.7879 	 0.9955
+[2021-11-11 11:44:30,609][src.init][INFO] - 13 	 6 	 -0.7867 	 0.9954
+[2021-11-11 11:44:35,971][src.init][INFO] - 14 	 5 	 -0.7893 	 0.9960
+[2021-11-11 11:44:41,688][src.init][INFO] - 15 	 6 	 -0.7915 	 0.9969
+[2021-11-11 11:44:47,131][src.init][INFO] - 16 	 5 	 -0.7931 	 0.9971
+[2021-11-11 11:44:52,579][src.init][INFO] - 17 	 5 	 -0.7906 	 0.9967
+[2021-11-11 11:44:58,045][src.init][INFO] - 18 	 5 	 -0.7902 	 0.9961
+[2021-11-11 11:45:03,478][src.init][INFO] - 19 	 5 	 -0.7915 	 0.9968
+[2021-11-11 11:45:09,087][src.init][INFO] - 20 	 6 	 -0.7926 	 0.9970
+[2021-11-11 11:45:09,816][src.init][INFO] - Test  	 loss: 0.0444 	 acc: 0.9916

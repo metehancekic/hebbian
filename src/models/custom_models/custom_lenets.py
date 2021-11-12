@@ -85,8 +85,7 @@ class T_LeNet(nn.Module):
 
         self.img = nn.Identity(54, unused_argument1=0.1, unused_argument2=False)
 
-        self.conv1 = nn.Conv2d(1, 50, kernel_size=5,
-                               stride=1, padding=2, bias=True)
+        self.conv1 = nn.Conv2d(1, 50, kernel_size=5, stride=1, padding=2, bias=False)
         # self.dn = DivisiveNormalization2d(sigma=0.1)
         # self.relu1 = TReLU(32, layer_type="conv2d")
         self.relu1 = torch.nn.ReLU()
@@ -119,7 +118,7 @@ class T_LeNet(nn.Module):
         out = self.img(x)
         out = self.conv1(out) / ((self.conv1.weight**2).sum(dim=(1, 2, 3),
                                                             keepdim=True).transpose(0, 1).sqrt()+1e-6)
-        out = self.relu1(torch.abs(out))
+        out = self.relu1(out)
         out = F.max_pool2d(out, (2, 2))
         out = F.max_pool2d(self.relu2(self.conv2(out)), (2, 2))
         out = out.view(out.size(0), -1)

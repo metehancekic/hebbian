@@ -12,6 +12,7 @@ nn:
   weight_decay: 0.0
   optimizer: "adam"
   scheduler: "none"
+  model_path: "checkpoints/"
   
 train:
   batch_size: 128
@@ -25,3 +26,5 @@ no_cuda: false
 seed: 2022
 log_interval: 10
 no_tensorboard: true
+save_model: true
+

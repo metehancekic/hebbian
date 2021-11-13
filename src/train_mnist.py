@@ -22,6 +22,7 @@ from mpl_utils import save_gif
 from .init import *
 
 from .utils.train_test import standard_epoch, standard_test
+from .utils.namers import classifier_ckpt_namer
 
 
 @hydra.main(config_path="/home/metehan/hebbian/src/configs", config_name="mnist")
@@ -79,14 +80,13 @@ def main(cfg: DictConfig) -> None:
     save_gif(weight_list, filepath=cfg.directory + "gifs")
     save_gif(weight_list2, filepath=cfg.directory + "gifs/second_layer")
 
+    # Save checkpoint
+    if cfg.save_model:
+        os.makedirs(cfg.directory + "checkpoints/classifiers/", exist_ok=True)
+        classifier_filepath = classifier_ckpt_namer(model_name=cfg.classifier, cfg=cfg)
+        torch.save(model.state_dict(), classifier_filepath)
+        logger.info(f"Saved to {classifier_filepath}")
 
-#     # Save checkpoint
-#     if args.save_checkpoint:
-#         if not os.path.exists(args.directory + "checkpoints/classifiers/"):
-#             os.makedirs(args.directory + "checkpoints/classifiers/")
-#         model_name = NN.name
-#         classifier_filepath = classifier_ckpt_namer(model_name, args)
-#         torch.save(model.state_dict(), classifier_filepath)
-#         logger.info(f"Saved to {classifier_filepath}")
+
 if __name__ == "__main__":
     main()

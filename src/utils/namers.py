@@ -36,7 +36,7 @@ def classifier_ckpt_namer(model_name: str, cfg: DictConfig):
     return file_path
 
 
-def classifier_log_namer(odel_name: str, cfg: DictConfig):
+def classifier_log_namer(model_name: str, cfg: DictConfig):
 
     file_path = cfg.directory + f"logs/{cfg.dataset}/"
 

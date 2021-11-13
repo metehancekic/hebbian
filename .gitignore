@@ -23,5 +23,7 @@ __pycache__/
 **/figures/*
 **/figs/*
 **/tensorboards/*
+**/outputs/*
+
 
 .env

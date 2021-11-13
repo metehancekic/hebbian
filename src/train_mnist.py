@@ -83,7 +83,7 @@ def main(cfg: DictConfig) -> None:
     # Save checkpoint
     if cfg.save_model:
         os.makedirs(cfg.directory + "checkpoints/classifiers/", exist_ok=True)
-        classifier_filepath = classifier_ckpt_namer(model_name=cfg.classifier, cfg=cfg)
+        classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
         torch.save(model.state_dict(), classifier_filepath)
         logger.info(f"Saved to {classifier_filepath}")
 

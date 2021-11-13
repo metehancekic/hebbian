@@ -5,7 +5,7 @@ import numpy as np
 from omegaconf import DictConfig, OmegaConf
 
 
-def classifier_params_string(odel_name: str, cfg: DictConfig):
+def classifier_params_string(model_name: str, cfg: DictConfig):
     classifier_params_string = model_name
 
     classifier_params_string += f"_{cfg.nn.optimizer}"

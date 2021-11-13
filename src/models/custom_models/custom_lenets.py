@@ -92,7 +92,7 @@ class T_LeNet(nn.Module):
 
         self.conv2 = nn.Conv2d(50, 64, kernel_size=5,
                                stride=1, padding=2, bias=False)
-        self.relu2 = TReLU(64, layer_type="conv2d")
+        self.relu2 = torch.nn.ReLU()
 
         self.fc1 = nn.Linear(7 * 7 * 64, 100, bias=False)
         self.relu3 = TReLU(100, layer_type="linear")

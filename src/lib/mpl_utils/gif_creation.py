@@ -48,7 +48,10 @@ def process_weights(weight_list: List[torch.Tensor], k: int):
 
 def save_gif(weight_list: List[torch.Tensor], filepath: str, num_cpus: int = 10):
 
-    ray.init(num_cpus=num_cpus, log_to_driver=False)
+    try:
+        ray.init(num_cpus=num_cpus, log_to_driver=False)
+    except:
+        pass
     weight_list_id = ray.put(weight_list)
 
     result_ids = [process_weights.remote(

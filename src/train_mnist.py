@@ -58,7 +58,7 @@ def main(cfg: DictConfig) -> None:
     weight_list[0] = model.conv1.weight.detach().cpu()
 
     weight_list2 = [None]*(cfg.train.epochs+1)
-    weight_list2[0] = model.conv2.weight.detach().cpu()
+    weight_list2[0] = model.conv2.weight.detach().cpu()[:, 1:2, :, :]
     for epoch in range(1, cfg.train.epochs+1):
         start_time = time.time()
         tr_loss, tr_acc = standard_epoch(model=model, train_loader=train_loader,
@@ -73,8 +73,9 @@ def main(cfg: DictConfig) -> None:
             logger.info(f'Test  \t loss: {test_loss:.4f} \t acc: {test_acc:.4f}')
 
         weight_list[epoch] = model.conv1.weight.detach().cpu()
-        weight_list2[epoch] = model.conv2.weight.detach().cpu()
+        weight_list2[epoch] = model.conv2.weight.detach().cpu()[:, 1:2, :, :]
 
+    # breakpoint()
     save_gif(weight_list, filepath=cfg.directory + "gifs")
     save_gif(weight_list2, filepath=cfg.directory + "gifs/second_layer")
 

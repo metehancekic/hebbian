@@ -17,7 +17,7 @@ nn:
 train:
   batch_size: 128
   epochs: 40
-  regularizer: "none"
+  regularizer: "hebbian_1.0"
   
 test:
   batch_size: 1000

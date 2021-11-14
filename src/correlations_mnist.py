@@ -67,11 +67,11 @@ def main(cfg: DictConfig) -> None:
         match_out /= ((model_match.conv1.weight**2).sum(dim=(1, 2, 3),
                                                         keepdim=True).transpose(0, 1).sqrt()+1e-6)
 
-        patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
+        # patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
 
-        print(f"patch: {patch_index}")
-        match_patch = match_out.squeeze().detach().cpu().numpy()[:, :, patch_index]
-        base_patch = base_out.squeeze().detach().cpu().numpy()[:, :, patch_index]
+        # print(f"patch: {patch_index}")
+        match_patch = match_out.squeeze().detach().cpu().numpy()
+        base_patch = base_out.squeeze().detach().cpu().numpy()
 
         abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
         xlims = (-abs_max, abs_max)

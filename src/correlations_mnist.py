@@ -131,7 +131,7 @@ def main(cfg: DictConfig) -> None:
     plt.tight_layout()
 
     os.makedirs(cfg.directory + "figs/", exist_ok=True)
-    plt.savefig(join('figs', 'correlations_normalized.pdf'))
+    plt.savefig(join(cfg.directory + 'figs', 'correlations_normalized.pdf'))
     plt.close()
 
 

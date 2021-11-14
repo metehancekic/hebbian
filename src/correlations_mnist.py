@@ -7,6 +7,7 @@ import numpy as np
 from omegaconf import DictConfig, OmegaConf
 import hydra
 import time
+from os.path import join
 import matplotlib.pyplot as plt
 
 # ATTACK CODES
@@ -65,8 +66,6 @@ def main(cfg: DictConfig) -> None:
         match_out = model_match.conv1(img.unsqueeze(0))
         match_out /= ((model_match.conv1.weight**2).sum(dim=(1, 2, 3),
                                                         keepdim=True).transpose(0, 1).sqrt()+1e-6)
-
-        breakpoint()
 
         patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
 

@@ -70,8 +70,8 @@ def main(cfg: DictConfig) -> None:
         # patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
 
         # print(f"patch: {patch_index}")
-        match_patch = match_out.squeeze().detach().cpu().numpy()
-        base_patch = base_out.squeeze().detach().cpu().numpy()
+        match_patch = match_out.squeeze().detach().cpu().numpy()[:, :, 10:18, 10:18]
+        base_patch = base_out.squeeze().detach().cpu().numpy()[:, :, 10:18, 10:18]
 
         abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
         xlims = (-abs_max, abs_max)

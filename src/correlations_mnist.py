@@ -67,83 +67,73 @@ def main(cfg: DictConfig) -> None:
                                                         keepdim=True).transpose(0, 1).sqrt()+1e-6)
 
         breakpoint()
-    #     # xlims = [-2.6, 2.6]
-    #     patch_index = (np.random.choice(range(1, 30, 2)),
-    #                    np.random.choice(range(1, 30, 2)))
-    #     # patch_index = (22, 23)
-    #     print(f"patch: {patch_index}")
-    #     classifier_patch = classifier_out.squeeze().detach().cpu().numpy()[
-    #         :, patch_index]
-    #     frontend_patch = (
-    #         frontend_out.squeeze()
-    #         .detach()
-    #         .cpu()
-    #         .numpy()[:, patch_index[0] // 2, patch_index[1] // 2]
-    #         )
-    #     abs_max = max(np.abs(classifier_patch).max(), np.abs(frontend_patch).max())
-    #     xlims = (-abs_max, abs_max)
 
-    #     bin_edges = np.linspace(*xlims, 50)
+        patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
 
-    #     hist, _ = np.histogram(classifier_patch, bin_edges, density=True)
-    #     # breakpoint()
-    #     color, edgecolor = ("orange", "darkorange")
+        print(f"patch: {patch_index}")
+        match_patch = match_out.squeeze().detach().cpu().numpy()[:, :, patch_index]
+        base_patch = base_out.squeeze().detach().cpu().numpy()[:, :, patch_index]
 
-    #     plt.bar(
-    #         bin_edges[:-1] + np.diff(bin_edges) / 2,
-    #         hist,
-    #         width=(bin_edges[1] - bin_edges[0]),
-    #         alpha=0.5,
-    #         edgecolor="none",
-    #         color=color,
-    #         )
-    #     plt.step(
-    #         np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
-    #         np.array([0, *hist, 0]),
-    #         label=r"CNN $1^{st}$ layer",
-    #         where="pre",
-    #         color=edgecolor,
-    #         )
-    #     ax = plt.gca()
-    #     ax.spines["right"].set_visible(False)
-    #     ax.spines["left"].set_visible(False)
-    #     ax.spines["top"].set_visible(False)
-    #     ax.get_yaxis().set_visible(False)
+        abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
+        xlims = (-abs_max, abs_max)
 
-    #     # print(f"===={out[0,0,0,0]}")
+        bin_edges = np.linspace(*xlims, 50)
 
-    #     hist, _ = np.histogram(frontend_patch, bin_edges, density=True)
+        hist, _ = np.histogram(match_patch, bin_edges, density=True)
 
-    #     # bin_edges, hist = np.histogram(out.squeeze().detach().cpu().numpy()[
-    #     #     :, np.random.choice(32), np.random.choice(32)], 50)
+        color, edgecolor = ("orange", "darkorange")
 
-    #     color, edgecolor = ("steelblue", "steelblue")
+        plt.bar(
+            bin_edges[:-1] + np.diff(bin_edges) / 2,
+            hist,
+            width=(bin_edges[1] - bin_edges[0]),
+            alpha=0.5,
+            edgecolor="none",
+            color=color,
+            )
+        plt.step(
+            np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+            np.array([0, *hist, 0]),
+            label=r"Hebbian model",
+            where="pre",
+            color=edgecolor,
+            )
+        ax = plt.gca()
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.get_yaxis().set_visible(False)
 
-    #     plt.bar(
-    #         bin_edges[:-1] + np.diff(bin_edges) / 2,
-    #         hist,
-    #         width=(bin_edges[1] - bin_edges[0]),
-    #         alpha=0.5,
-    #         edgecolor="none",
-    #         color=color,
-    #         )
-    #     plt.step(
-    #         np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
-    #         np.array([0, *hist, 0]),
-    #         label=r"Overcomplete dictionary",
-    #         where="pre",
-    #         color=edgecolor,
-    #         )
-    #     ax = plt.gca()
-    #     ax.spines["right"].set_visible(False)
-    #     ax.spines["left"].set_visible(False)
-    #     ax.spines["top"].set_visible(False)
-    #     ax.get_yaxis().set_visible(False)
+        hist, _ = np.histogram(base_patch, bin_edges, density=True)
 
-    # plt.tight_layout()
+        color, edgecolor = ("steelblue", "steelblue")
 
-    # plt.savefig(join('figs', 'more_correlations_normalized.pdf'))
-    # plt.close()
+        plt.bar(
+            bin_edges[:-1] + np.diff(bin_edges) / 2,
+            hist,
+            width=(bin_edges[1] - bin_edges[0]),
+            alpha=0.5,
+            edgecolor="none",
+            color=color,
+            )
+        plt.step(
+            np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+            np.array([0, *hist, 0]),
+            label=r"Base model",
+            where="pre",
+            color=edgecolor,
+            )
+        ax = plt.gca()
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+    plt.tight_layout()
+
+    os.makedirs(cfg.directory + "figs/", exist_ok=True)
+    plt.savefig(join('figs', 'correlations_normalized.pdf'))
+    plt.close()
 
 
 if __name__ == "__main__":

@@ -64,14 +64,14 @@ def main(cfg: DictConfig) -> None:
 
         patch_norms = lp_norm_extractor(img.unsqueeze(0))
 
-        breakpoint()
-
         base_out = model_base.conv1(img.unsqueeze(0))
 
         weigh_base = (model_base.conv1.weight**2).sum(dim=(1, 2, 3),
                                                       keepdim=True).transpose(0, 1).sqrt()
 
         base_out /= (patch_norms + weigh_base + 1e-8)
+
+        breakpoint()
 
         match_out = model_match.conv1(img.unsqueeze(0))
         weight_match = (model_match.conv1.weight**2).sum(dim=(1, 2, 3),

@@ -72,15 +72,15 @@ def main(cfg: DictConfig) -> None:
 
         base_out /= (patch_norms + weigh_base + 1e-8)
 
-        breakpoint()
-
         match_out = model_match.conv1(img.unsqueeze(0))
         weight_match = (model_match.conv1.weight**2).sum(dim=(1, 2, 3),
                                                          keepdim=True).transpose(0, 1).sqrt()
         match_out /= (patch_norms + weight_match + 1e-6)
 
-        match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
-        base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
+        # match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
+        # base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
+        match_patch = match_out[patch_norms > 0.3].detach().cpu().numpy()
+        base_patch = base_out[patch_norms > 0.3].detach().cpu().numpy()
 
         abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
         xlims = (-abs_max, abs_max)

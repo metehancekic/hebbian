@@ -42,7 +42,7 @@ def main(cfg: DictConfig) -> None:
     train_loader, test_loader, data_params = init_dataset(cfg)
 
     lp_norm_extractor = LpConv2d(in_channels=1, out_channels=1,
-                                 kernel_size=5, stride=1, padding=2, bias=False, p_norm=2)
+                                 kernel_size=5, stride=1, padding=2, bias=False, p_norm=2).to(device)
     model_base = init_classifier(cfg).to(device)
     model_match = init_classifier(cfg).to(device)
 

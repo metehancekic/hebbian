@@ -1,6 +1,4 @@
 """
-Example Run
-python -m src.cifar.main  --model VGG11 -tr -sm
 """
 
 import numpy as np
@@ -8,6 +6,7 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 import time
 from os.path import join
+from matplotlib import rc
 import matplotlib.pyplot as plt
 
 # ATTACK CODES
@@ -16,9 +15,6 @@ from deepillusion.torchattacks import FGSM, RFGSM, PGD, PGD_EOT
 # PYTORCH UTILS
 from pytorch_utils.surgery import LayerOutputExtractor_wrapper
 from pytorch_utils.analysis import count_parameter
-
-# MPL utils
-from mpl_utils import save_gif
 
 # Initializers
 from .init import *
@@ -29,6 +25,12 @@ from .models.custom_layers import LpConv2d
 
 @hydra.main(config_path="/home/metehan/hebbian/src/configs", config_name="mnist")
 def main(cfg: DictConfig) -> None:
+
+    rc('font', ** {
+       'family': 'serif',
+       'serif': ['Computer Modern']
+       })
+    rc('text', usetex=True)
 
     print(OmegaConf.to_yaml(cfg))
 
@@ -53,7 +55,7 @@ def main(cfg: DictConfig) -> None:
     model_base.load_state_dict(torch.load(base_filepath))
 
     nb_cols = 2
-    nb_rows = 5
+    nb_rows = 2
     plt.figure(figsize=(10 * nb_cols, 4 * nb_rows))
     for i in range(nb_cols * nb_rows):
         plt.subplot(nb_rows, nb_cols, i + 1)

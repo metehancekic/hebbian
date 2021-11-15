@@ -40,4 +40,4 @@ rc(
     preamble=r"\usepackage{amsmath}   \usepackage{mathrsfs} \usepackage{amssymb}",
 )
 rcParams["mathtext.fontset"] = "stix"
-rcParams["font.family"] = "serif"
+rcParams["font.family"] = "STIXGeneral"

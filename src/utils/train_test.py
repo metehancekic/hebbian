@@ -46,7 +46,10 @@ def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized
         loss = cross_ent(output, target)
         # loss = 0
 
-        loss -= 1.0 * torch.mean(saliency_K(features=tobe_regularized,
+        features = {key: value for key, value in model.layer_outputs.items()
+                    if key in tobe_regularized}
+
+        loss -= 1.0 * torch.mean(saliency_K(features=features,
                                             K=5, saliency_lambda=0.1, dim=1))
 
         # breakpoint()

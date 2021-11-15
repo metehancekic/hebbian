@@ -55,8 +55,7 @@ def main(cfg: DictConfig) -> None:
 
     _ = count_parameter(model=model, logger=logger.info, verbose=True)
 
-    tobe_regularized = {key: value for key, value in model.layer_outputs.items() if key in [
-        "relu1"]}
+    tobe_regularized = ["relu1"]
 
     weight_list = [None]*(cfg.train.epochs+1)
     weight_list[0] = model.conv1.weight.detach().cpu()
@@ -79,8 +78,8 @@ def main(cfg: DictConfig) -> None:
 
     model.conv1.weight.requires_grad = False
 
-    tobe_regularized = {key: value for key, value in model.layer_outputs.items() if key in [
-        "relu2"]}
+    tobe_regularized = ["relu2"]
+
     weight_list2 = [None]*(cfg.train.epochs+1)
     weight_list2[0] = model.conv2.weight.detach().cpu()[:, 1:2, :, :]
     for epoch in range(1, cfg.train.epochs+1):

@@ -68,8 +68,8 @@ def main(cfg: DictConfig) -> None:
         img, _ = train_loader.dataset[img_index]
         img = img.to(device)
 
-        _ = model_base(img)
-        _ = model_match(img)
+        _ = model_base(img.unsqueeze(0))
+        _ = model_match(img.unsqueeze(0))
 
         patch_norms_base = lp_norm_extractor(model_base.layer_outputs["relu2"])
         patch_norms_base = torch.repeat_interleave(patch_norms_base, 64, dim=1)

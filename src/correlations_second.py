@@ -82,6 +82,8 @@ def main(cfg: DictConfig) -> None:
         weigh_base = (model_base.conv2.weight**2).sum(dim=(1, 2, 3),
                                                       keepdim=True).transpose(0, 1).sqrt()
 
+        breakpoint()
+
         base_out /= (patch_norms_base + weigh_base + 1e-8)
 
         match_out = model_match.layer_outputs["conv2"]

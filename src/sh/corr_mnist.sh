@@ -7,6 +7,9 @@ declare -a arr=(0.00001)
 
 for i in "${arr[@]}"
 do
+	COMMAND="python -m src.lib.mpl_utils.settings.py"
+	echo $COMMAND
+	eval $COMMAND
 	COMMAND="python -m src.correlations_mnist"
 	echo $COMMAND
 	eval $COMMAND

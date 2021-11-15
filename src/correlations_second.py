@@ -71,10 +71,10 @@ def main(cfg: DictConfig) -> None:
         _ = model_base(img.unsqueeze(0))
         _ = model_match(img.unsqueeze(0))
 
-        patch_norms_base = lp_norm_extractor(model_base.layer_outputs["relu2"])
+        patch_norms_base = lp_norm_extractor(model_base.layer_outputs["relu1"])
         patch_norms_base = torch.repeat_interleave(patch_norms_base, 64, dim=1)
 
-        patch_norms_match = lp_norm_extractor(model_match.layer_outputs["relu2"])
+        patch_norms_match = lp_norm_extractor(model_match.layer_outputs["relu1"])
         patch_norms_match = torch.repeat_interleave(patch_norms_match, 64, dim=1)
 
         base_out = model_base.layer_outputs["relu2"]

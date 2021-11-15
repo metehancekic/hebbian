@@ -64,6 +64,8 @@ def main(cfg: DictConfig) -> None:
 
         patch_norms = lp_norm_extractor(img.unsqueeze(0))
 
+        breakpoint()
+
         base_out = model_base.conv1(img.unsqueeze(0))
 
         weigh_base = (model_base.conv1.weight**2).sum(dim=(1, 2, 3),
@@ -76,9 +78,6 @@ def main(cfg: DictConfig) -> None:
                                                          keepdim=True).transpose(0, 1).sqrt()
         match_out /= (patch_norms + weight_match + 1e-6)
 
-        # patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
-
-        # print(f"patch: {patch_index}")
         match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
         base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
 

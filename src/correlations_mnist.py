@@ -28,7 +28,7 @@ def main(cfg: DictConfig) -> None:
 
     rc('font', ** {
        'family': 'serif',
-       'serif': ['Computer Modern']
+       'serif': ["Times"]
        })
     rc('text', usetex=True)
 

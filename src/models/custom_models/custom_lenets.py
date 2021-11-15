@@ -120,7 +120,9 @@ class T_LeNet(nn.Module):
                                                             keepdim=True).transpose(0, 1).sqrt()+1e-6)
         out = self.relu1(out)
         out = F.max_pool2d(out, (2, 2))
-        out = F.max_pool2d(self.relu2(self.conv2(out)), (2, 2))
+        out = self.conv2(out)/((self.conv2.weight**2).sum(dim=(1, 2, 3),
+                                                          keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        out = F.max_pool2d(self.relu2(out), (2, 2))
         out = out.view(out.size(0), -1)
         out = self.relu3(self.fc1(out))
         out = self.fc2(out)

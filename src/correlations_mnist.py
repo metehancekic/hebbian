@@ -63,6 +63,7 @@ def main(cfg: DictConfig) -> None:
         img = img.to(device)
 
         patch_norms = lp_norm_extractor(img.unsqueeze(0))
+        patch_norms = torch.repeat_interleave(patch_norms, 50, dim=1)
 
         base_out = model_base.conv1(img.unsqueeze(0))
 

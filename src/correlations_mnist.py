@@ -24,6 +24,7 @@ from mpl_utils import save_gif
 from .init import *
 
 from .utils.namers import classifier_ckpt_namer
+from .models.custom_layers import LpConv2d
 
 
 @hydra.main(config_path="/home/metehan/hebbian/src/configs", config_name="mnist")
@@ -40,6 +41,8 @@ def main(cfg: DictConfig) -> None:
 
     train_loader, test_loader, data_params = init_dataset(cfg)
 
+    lp_norm_extractor = LpConv2d(in_channels=1, out_channels=1,
+                                 kernel_size=5, stride=1, padding=2, bias=False, p_norm=2)
     model_base = init_classifier(cfg).to(device)
     model_match = init_classifier(cfg).to(device)
 
@@ -59,13 +62,19 @@ def main(cfg: DictConfig) -> None:
         img, _ = train_loader.dataset[img_index]
         img = img.to(device)
 
+        patch_norms = lp_norm_extractor(img.unsqueeze(0))
+
         base_out = model_base.conv1(img.unsqueeze(0))
-        base_out /= ((model_base.conv1.weight**2).sum(dim=(1, 2, 3),
-                                                      keepdim=True).transpose(0, 1).sqrt()+1e-6)
+
+        weigh_base = (model_base.conv1.weight**2).sum(dim=(1, 2, 3),
+                                                      keepdim=True).transpose(0, 1).sqrt()
+
+        base_out /= (patch_norms + weigh_base + 1e-8)
 
         match_out = model_match.conv1(img.unsqueeze(0))
-        match_out /= ((model_match.conv1.weight**2).sum(dim=(1, 2, 3),
-                                                        keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        weight_match = (model_match.conv1.weight**2).sum(dim=(1, 2, 3),
+                                                         keepdim=True).transpose(0, 1).sqrt()
+        match_out /= (patch_norms + weight_match + 1e-6)
 
         # patch_index = (np.random.choice(range(1, 28, 2)), np.random.choice(range(1, 28, 2)))
 
@@ -131,7 +140,7 @@ def main(cfg: DictConfig) -> None:
     plt.tight_layout()
 
     os.makedirs(cfg.directory + "figs/", exist_ok=True)
-    plt.savefig(join(cfg.directory + 'figs', 'correlations_normalized.pdf'))
+    plt.savefig(join(cfg.directory + 'figs', 'correlations_fully_normalized.pdf'))
     plt.close()
 
 

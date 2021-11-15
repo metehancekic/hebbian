@@ -55,6 +55,9 @@ def main(cfg: DictConfig) -> None:
 
     _ = count_parameter(model=model, logger=logger.info, verbose=True)
 
+    tobe_regularized = {key: value for key, value in model.layer_outputs.items() if key in [
+        "relu1"]}
+
     weight_list = [None]*(cfg.train.epochs+1)
     weight_list[0] = model.conv1.weight.detach().cpu()
 
@@ -63,7 +66,8 @@ def main(cfg: DictConfig) -> None:
     for epoch in range(1, cfg.train.epochs+1):
         start_time = time.time()
         tr_loss, tr_acc = standard_epoch(model=model, train_loader=train_loader,
-                                         optimizer=optimizer, regularizer=cfg.train.regularizer, scheduler=scheduler, verbose=False)
+                                         optimizer=optimizer, regularizer=cfg.train.regularizer,
+                                         tobe_regularized=tobe_regularized, scheduler=scheduler, verbose=False)
         end_time = time.time()
 
         logger.info(f'{epoch} \t {end_time - start_time:.0f} \t {tr_loss:.4f} \t {tr_acc:.4f}')

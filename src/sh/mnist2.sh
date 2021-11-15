@@ -7,7 +7,7 @@ declare -a arr=(0.00001)
 
 for i in "${arr[@]}"
 do
-	COMMAND="python -m src.train_mnist"
+	COMMAND="python -m src.train_mnist_multiple_phase"
 	echo $COMMAND
 	eval $COMMAND
 done

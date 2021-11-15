@@ -86,7 +86,7 @@ def main(cfg: DictConfig) -> None:
         start_time = time.time()
         tr_loss, tr_acc = standard_epoch(model=model, train_loader=train_loader,
                                          optimizer=optimizer, regularizer=cfg.train.regularizer,
-                                         tobe_regularized=tobe_regularized, scheduler=scheduler, verbose=False)
+                                         tobe_regularized=tobe_regularized, regularizer_scale=0.3, scheduler=scheduler, verbose=False)
         end_time = time.time()
 
         logger.info(f'{epoch} \t {end_time - start_time:.0f} \t {tr_loss:.4f} \t {tr_acc:.4f}')

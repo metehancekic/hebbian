@@ -48,9 +48,9 @@ def main(cfg: DictConfig) -> None:
     model_base = init_classifier(cfg).to(device)
     model_match = init_classifier(cfg).to(device)
 
-    model_base = LayerOutputExtractor_wrapper(model_base, layer_names=["img", "relu1", "relu2"])
+    model_base = LayerOutputExtractor_wrapper(model_base, layer_names=["img", "relu1", "conv2"])
 
-    model_match = LayerOutputExtractor_wrapper(model_match, layer_names=["img", "relu1", "relu2"])
+    model_match = LayerOutputExtractor_wrapper(model_match, layer_names=["img", "relu1", "conv2"])
 
     classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
     model_match.load_state_dict(torch.load(classifier_filepath))
@@ -77,14 +77,14 @@ def main(cfg: DictConfig) -> None:
         patch_norms_match = lp_norm_extractor(model_match.layer_outputs["relu1"])
         patch_norms_match = torch.repeat_interleave(patch_norms_match, 64, dim=1)
 
-        base_out = model_base.layer_outputs["relu2"]
+        base_out = model_base.layer_outputs["conv2"]
 
         weigh_base = (model_base.conv2.weight**2).sum(dim=(1, 2, 3),
                                                       keepdim=True).transpose(0, 1).sqrt()
 
         base_out /= (patch_norms_base + weigh_base + 1e-8)
 
-        match_out = model_match.layer_outputs["relu2"]
+        match_out = model_match.layer_outputs["conv2"]
         weight_match = (model_match.conv1.weight**2).sum(dim=(1, 2, 3),
                                                          keepdim=True).transpose(0, 1).sqrt()
         match_out /= (patch_norms_match + weight_match + 1e-6)

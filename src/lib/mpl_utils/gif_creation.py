@@ -18,7 +18,7 @@ def process_weights(weight_list: List[torch.Tensor], k: int):
     mins_ = mins.squeeze().tolist()
     maxs_ = maxs.squeeze().tolist()
 
-    n_subplot_sqrt: int = np.rint(np.sqrt(len(weights))).astype(int)
+    n_subplot_sqrt: int = np.rint(np.sqrt(len(weights))).astype(int)-1
     fig = plt.figure(figsize=(12, 12))
     for i in range(n_subplot_sqrt):
         for j in range(n_subplot_sqrt):

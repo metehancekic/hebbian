@@ -101,8 +101,8 @@ def main(cfg: DictConfig) -> None:
     weight_list.append(model.conv1.weight.detach().cpu())
 
     # breakpoint()
-    save_gif(weight_list, filepath=cfg.directory + "gifs/first_layer")
-    save_gif(weight_list2, filepath=cfg.directory + "gifs/second_layer")
+    save_gif(weight_list, filepath=cfg.directory + "gifs/mp/first_layer")
+    save_gif(weight_list2, filepath=cfg.directory + "gifs/mp/second_layer")
 
     # Save checkpoint
     if cfg.save_model:

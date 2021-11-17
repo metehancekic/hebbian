@@ -40,7 +40,7 @@ def main(cfg: DictConfig) -> None:
     train_loader, test_loader, data_params = init_dataset(cfg)
     model = init_classifier(cfg).to(device)
 
-    model = LayerOutputExtractor_wrapper(model, layer_names=["img", "relu1", "relu2"])
+    model = LayerOutputExtractor_wrapper(model, layer_names=["relu1", "relu2"])
     logger = init_logger(cfg, model.name())
 
     if not cfg.no_tensorboard:

@@ -21,19 +21,20 @@ class LeNet(nn.Module):
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5,
                                stride=1, padding=2, bias=True)
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu1 = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5,
                                stride=1, padding=2, bias=True)
+
+        self.relu2 = nn.ReLU(inplace=True)
         self.fc1 = nn.Linear(7 * 7 * 64, 1024, bias=True)
         self.fc2 = nn.Linear(1024, num_classes, bias=True)
 
     def forward(self, x):
 
         # out = self.norm(x)
-        out = x
-        self.l1 = self.relu(self.conv1(out))
-        out = F.max_pool2d(self.l1, (2, 2))
-        out = F.max_pool2d(F.relu(self.conv2(out)), (2, 2))
+        out = self.relu1(self.conv1(x))
+        out = F.max_pool2d(out, (2, 2))
+        out = F.max_pool2d(self.relu2(self.conv2(out)), (2, 2))
         out = out.view(out.size(0), -1)
         out = F.relu(self.fc1(out))
         out = self.fc2(out)

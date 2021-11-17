@@ -17,6 +17,7 @@ class DivisiveNormalization2d(Module):
         b_type: Type of suppressin field, must be one of (`linf`, `l1`, `l2`).
         b_size: The size of the suppression field, must be > 0.
         sigma: Constant added to suppression field, must be > 0.
+        alpha: Global suppression rate, 0 means no suppression, 1 means complete suppression.
 
     Shape:
         - Input: :math:`(N, C, H, W)`
@@ -31,18 +32,17 @@ class DivisiveNormalization2d(Module):
     """
 
     def __init__(
-            self,
-            b_type: str = "linf",
-            b_size: Union[int, Tuple[int, int]] = (5, 5),
-            sigma: float = 1.0,
-            alpha: float = 0.6,
-            global_suppression: bool = False,
-    ) -> None:
+        self,
+        b_type: str = "linf",
+        b_size: Union[int, Tuple[int, int]] = (5, 5),
+        sigma: float = 1.0,
+        alpha: float = 0.0,
+            ) -> None:
         super(DivisiveNormalization2d, self).__init__()
 
         self.sigma = sigma
         self.alpha = alpha
-        self.global_suppression = global_suppression
+
         if isinstance(b_size, int):
             self.b_size = (b_size, b_size)
         else:
@@ -66,10 +66,10 @@ class DivisiveNormalization2d(Module):
                 input**2, weight=weight, padding=self.padding, groups=input.shape[1]))
         else:
             raise NotImplementedError
-        if self.global_suppression:
+        if self.alpha > 0:
             weight = torch.ones(
                 (input.shape[1], 1, self.b_size[0], self.b_size[1])).to(input.device)
-            
+
             global_suppression_field = F.conv2d(
                 torch.abs(input), weight=weight, padding=self.padding, groups=input.shape[1])
             return input / (self.sigma + suppression_field) * torch.heaviside(global_suppression_field-self.alpha*torch.amax(global_suppression_field, dim=(-1, -2), keepdim=True), torch.zeros_like(global_suppression_field))
@@ -78,8 +78,8 @@ class DivisiveNormalization2d(Module):
 
     def __repr__(self) -> str:
         s = "DivisiveNormalization2d("
-        s += f'b_type={self.b_type}, b_size={self.b_size}, sigma={self.sigma}, alpha={self.alpha}'
-        if not self.global_suppression:
-            s += f', global_suppression={self.global_suppression}'
+        s += f'b_type={self.b_type}, b_size={self.b_size}, sigma={self.sigma}'
+        if self.alpha > 0:
+            s += f', alpha={self.alpha}'
         s += ")"
         return s.format(**self.__dict__)

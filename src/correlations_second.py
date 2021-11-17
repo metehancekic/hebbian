@@ -9,6 +9,8 @@ from os.path import join
 from matplotlib import rc
 import matplotlib.pyplot as plt
 
+import torch.nn.functional as F
+
 # ATTACK CODES
 from deepillusion.torchattacks import FGSM, RFGSM, PGD, PGD_EOT
 
@@ -21,6 +23,7 @@ from .init import *
 
 from .utils.namers import classifier_ckpt_namer
 from .models.custom_layers import LpConv2d
+from .models import LeNet
 
 
 @hydra.main(config_path="/home/metehan/hebbian/src/configs", config_name="mnist")
@@ -43,23 +46,23 @@ def main(cfg: DictConfig) -> None:
 
     train_loader, test_loader, data_params = init_dataset(cfg)
 
-    lp_norm_extractor = LpConv2d(in_channels=50, out_channels=1,
+    lp_norm_extractor = LpConv2d(in_channels=32, out_channels=1,
                                  kernel_size=5, stride=1, padding=2, bias=False, p_norm=2).to(device)
-    model_base = init_classifier(cfg).to(device)
+    model_base = LeNet().to(device)
     model_match = init_classifier(cfg).to(device)
 
-    model_base = LayerOutputExtractor_wrapper(model_base, layer_names=["img", "relu1", "conv2"])
+    model_base = LayerOutputExtractor_wrapper(model_base, layer_names=["relu1", "conv2"])
 
-    model_match = LayerOutputExtractor_wrapper(model_match, layer_names=["img", "relu1", "conv2"])
+    model_match = LayerOutputExtractor_wrapper(model_match, layer_names=["relu1", "conv2"])
 
     classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
     model_match.load_state_dict(torch.load(classifier_filepath))
 
-    base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "T_LeNet_adam_none_0.0010_none_ep_40.pt"
+    base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "LeNet_adam_none_0.0010_none_ep_40.pt"
     model_base.load_state_dict(torch.load(base_filepath))
 
-    nb_cols = 2
-    nb_rows = 2
+    nb_cols = 1
+    nb_rows = 1
     plt.figure(figsize=(10 * nb_cols, 4 * nb_rows))
     for i in range(nb_cols * nb_rows):
         plt.subplot(nb_rows, nb_cols, i + 1)
@@ -71,25 +74,25 @@ def main(cfg: DictConfig) -> None:
         _ = model_base(img.unsqueeze(0))
         _ = model_match(img.unsqueeze(0))
 
-        patch_norms_base = lp_norm_extractor(model_base.layer_outputs["relu1"])
+        patch_norms_base = lp_norm_extractor(
+            F.max_pool2d(model_base.layer_outputs["relu1"], (2, 2)))
         patch_norms_base = torch.repeat_interleave(patch_norms_base, 64, dim=1)
 
-        patch_norms_match = lp_norm_extractor(model_match.layer_outputs["relu1"])
+        patch_norms_match = lp_norm_extractor(
+            F.max_pool2d(model_match.layer_outputs["relu1"], (2, 2)))
         patch_norms_match = torch.repeat_interleave(patch_norms_match, 64, dim=1)
 
         base_out = model_base.layer_outputs["conv2"]
 
-        weigh_base = (model_base.conv2.weight**2).sum(dim=(1, 2, 3),
-                                                      keepdim=True).transpose(0, 1).sqrt()
+        weight_base = (model_base.conv2.weight**2).sum(dim=(1, 2, 3),
+                                                       keepdim=True).transpose(0, 1).sqrt()
 
-        breakpoint()
-
-        base_out /= (patch_norms_base + weigh_base + 1e-8)
+        base_out /= (patch_norms_base*weight_base + 1e-8)
 
         match_out = model_match.layer_outputs["conv2"]
-        weight_match = (model_match.conv1.weight**2).sum(dim=(1, 2, 3),
+        weight_match = (model_match.conv2.weight**2).sum(dim=(1, 2, 3),
                                                          keepdim=True).transpose(0, 1).sqrt()
-        match_out /= (patch_norms_match + weight_match + 1e-6)
+        match_out /= (patch_norms_match*weight_match + 1e-8)
 
         # match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
         # base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
@@ -150,11 +153,12 @@ def main(cfg: DictConfig) -> None:
         ax.spines["left"].set_visible(False)
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
+        plt.legend()
 
     plt.tight_layout()
 
     os.makedirs(cfg.directory + "figs/", exist_ok=True)
-    plt.savefig(join(cfg.directory + 'figs', 'correlations_second_layer.pdf'))
+    plt.savefig(join(cfg.directory + 'figs', 'correlations_second_single.pdf'))
     plt.close()
 
 

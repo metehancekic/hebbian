@@ -285,7 +285,6 @@ class DifferenceOfGaussian2d(GaussianKernel2d):
         if show_image:
             from matplotlib import pyplot as plt
             from matplotlib import cm
-            # breakpoint()
             plt.figure()
             plt.imshow(edgy, cmap="gray")
             plt.show()

@@ -18,7 +18,7 @@ def process_weights(weight_list: List[torch.Tensor], k: int):
     mins_ = mins.squeeze().tolist()
     maxs_ = maxs.squeeze().tolist()
 
-    n_subplot_sqrt: int = np.rint(np.sqrt(len(weights))).astype(int)-1
+    n_subplot_sqrt: int = np.floor(np.sqrt(len(weights))).astype(int)
     fig = plt.figure(figsize=(12, 12))
     for i in range(n_subplot_sqrt):
         for j in range(n_subplot_sqrt):
@@ -46,7 +46,7 @@ def process_weights(weight_list: List[torch.Tensor], k: int):
     return image_from_plot
 
 
-def save_gif(weight_list: List[torch.Tensor], filepath: str, num_cpus: int = 10):
+def save_gif(weight_list: List[torch.Tensor], filepath: str, file_name: str, num_cpus: int = 10):
 
     try:
         ray.init(num_cpus=num_cpus, log_to_driver=False)
@@ -64,7 +64,7 @@ def save_gif(weight_list: List[torch.Tensor], filepath: str, num_cpus: int = 10)
     if not os.path.exists(filepath):
         os.makedirs(filepath)
 
-    mimsave(filepath+"/filters.gif",
+    mimsave(filepath + file_name + ".gif",
             gif_images, duration=0.1)
 
-    optimize(filepath+"/filters.gif")
+    optimize(filepath + file_name + ".gif")

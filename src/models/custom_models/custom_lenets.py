@@ -8,9 +8,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+from pytorch_utils.layers import DivisiveNormalization2d
 
 from ..custom_activations import TReLU_with_trainable_bias, TReLU
-from ..custom_layers import Normalize, take_top_k, DivisiveNormalization2d, Binarization
+from ..custom_layers import Normalize, take_top_k, Binarization
 
 
 class T_LeNet(nn.Module):
@@ -24,6 +25,112 @@ class T_LeNet(nn.Module):
         self.img = nn.Identity(54, unused_argument1=0.1, unused_argument2=False)
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2, bias=False)
+
+        self.relu1 = torch.nn.ReLU()
+
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=5,
+                               stride=1, padding=2, bias=False)
+        self.relu2 = torch.nn.ReLU()
+
+        self.fc1 = nn.Linear(7 * 7 * 64, 100, bias=False)
+        self.relu3 = TReLU(100, layer_type="linear")
+
+        self.fc2 = nn.Linear(100, num_classes, bias=True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        out = self.img(x)
+        out = self.conv1(out) / ((self.conv1.weight**2).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        out = self.relu1(out)
+        out = F.max_pool2d(out, (2, 2))
+        out = self.conv2(out)/((self.conv2.weight**2).sum(dim=(1, 2, 3),
+                                                          keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        out = F.max_pool2d(self.relu2(out), (2, 2))
+        out = out.view(out.size(0), -1)
+        out = self.relu3(self.fc1(out))
+        out = self.fc2(out)
+
+        return out
+
+    def name(self) -> str:
+        return f"T_LeNet"
+
+
+class Tdn_LeNet(nn.Module):
+
+    # 2 Conv layers, 2 Fc layers
+    def __init__(self, num_classes: int = 10):
+        super().__init__()
+
+        # self.norm = Normalize(mean=[0.1307], std=[0.3081])
+
+        self.img = nn.Identity(54, unused_argument1=0.1, unused_argument2=False)
+
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2, bias=False)
+
+        self.dn = DivisiveNormalization2d(sigma=0.1)
+
+        self.relu1 = torch.nn.ReLU()
+
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=5,
+                               stride=1, padding=2, bias=False)
+        self.relu2 = torch.nn.ReLU()
+
+        self.fc1 = nn.Linear(7 * 7 * 64, 100, bias=False)
+        self.relu3 = TReLU(100, layer_type="linear")
+
+        self.fc2 = nn.Linear(100, num_classes, bias=True)
+
+    # def set_bias(self, alpha: float, layers: Iterable[Iterable]):
+    #     modules = dict([*self.named_modules()])
+    #     for layer_id, activation_id in layers:
+    #         layer = modules[layer_id]
+    #         activation = modules[activation_id]
+    #         l1_weights = norm_weight(layer.weight, lp_norm=1)
+    #         if layer.weight.ndim == 4:
+    #             activation.bias = torch.nn.Parameter(
+    #                 l1_weights.unsqueeze(0).unsqueeze(2).unsqueeze(2) * alpha)
+    #         elif layer.weight.ndim == 2:
+    #             activation.bias = torch.nn.Parameter(
+    #                 l1_weights.unsqueeze(0) * alpha)
+    #         activation.bias.requires_grad = False
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        out = self.img(x)
+        out = self.conv1(out) / ((self.conv1.weight**2).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        out = self.dn(out)
+        out = self.relu1(out)
+        out = F.max_pool2d(out, (2, 2))
+        out = self.conv2(out)/((self.conv2.weight**2).sum(dim=(1, 2, 3),
+                                                          keepdim=True).transpose(0, 1).sqrt()+1e-6)
+        out = F.max_pool2d(self.relu2(out), (2, 2))
+        out = out.view(out.size(0), -1)
+        out = self.relu3(self.fc1(out))
+        out = self.fc2(out)
+
+        return out
+
+    def name(self) -> str:
+        return f"Tdn_LeNet"
+
+
+
+class Dn_LeNet(nn.Module):
+
+    # 2 Conv layers, 2 Fc layers
+    def __init__(self, num_classes: int = 10):
+        super().__init__()
+
+        # self.norm = Normalize(mean=[0.1307], std=[0.3081])
+
+        self.img = nn.Identity(54, unused_argument1=0.1, unused_argument2=False)
+
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2, bias=False)
+
+        self.dn = DivisiveNormalization2d(sigma=0.1)
 
         self.relu1 = torch.nn.ReLU()
 
@@ -56,6 +163,8 @@ class T_LeNet(nn.Module):
         out = self.conv1(out) / ((self.conv1.weight**2).sum(dim=(1, 2, 3),
                                                             keepdim=True).transpose(0, 1).sqrt()+1e-6)
         out = self.relu1(out)
+        out = self.dn(out)
+        
         out = F.max_pool2d(out, (2, 2))
         out = self.conv2(out)/((self.conv2.weight**2).sum(dim=(1, 2, 3),
                                                           keepdim=True).transpose(0, 1).sqrt()+1e-6)
@@ -67,7 +176,7 @@ class T_LeNet(nn.Module):
         return out
 
     def name(self) -> str:
-        return f"T_LeNet"
+        return f"Dn_LeNet"
 
 
 class TT_LeNet(nn.Module):

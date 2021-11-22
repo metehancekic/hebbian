@@ -18,6 +18,8 @@ train:
   batch_size: 128
   epochs: 40
   regularizer: "hebbian_1.0"
+  tobe_regularized:
+    - relu1
   
 test:
   batch_size: 1000

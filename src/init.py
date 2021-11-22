@@ -20,7 +20,7 @@ from .data import get_loaders
 from .utils.namers import classifier_params_string, classifier_log_namer
 
 
-from .models.custom_models import topk_LeNet, topk_VGG, T_LeNet, TT_LeNet, Leaky_LeNet, BT_LeNet, NT_LeNet, Nl1T_LeNet
+from .models.custom_models import topk_LeNet, topk_VGG, T_LeNet, TT_LeNet, Leaky_LeNet, BT_LeNet, NT_LeNet, Nl1T_LeNet, Tdn_LeNet, Dn_LeNet
 from .models import ResNet, VGG, ResNetWide, LeNet
 
 

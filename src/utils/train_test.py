@@ -16,7 +16,7 @@ import torch.nn.functional as F
 from pytorch_utils.loss import saliency_K
 
 
-def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized, regularizer_scale=1.0, scheduler=None, verbose: bool = False):
+def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized, scheduler=None, verbose: bool = False):
     """
     Description: Single epoch,
         if adversarial args are present then adversarial training.
@@ -49,13 +49,13 @@ def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized
         features = {key: value for key, value in model.layer_outputs.items()
                     if key in tobe_regularized}
 
-        if "hebbian" in regularizer:
-            loss -= regularizer_scale * torch.mean(saliency_K(features=features,
-                                                              K=5, saliency_lambda=0.1, dim=1))
+        for reg_idx in range(len(tobe_regularized)):
+            features = {key: value for key, value in model.layer_outputs.items()
+                        if key == tobe_regularized[reg_idx]}
 
-        # breakpoint()
-        # loss -= 1.0 * torch.mean(saliency_K(features=tobe_regularized2,
-        #                                     K=3, saliency_lambda=0.5, dim=1))
+            if "hebbian" == regularizer[reg_idx][0]:
+                loss -= regularizer[reg_idx][1] * torch.mean(saliency_K(features=features,
+                                                                        K=5, saliency_lambda=0.1, dim=1))
 
         loss.backward()
         optimizer.step()

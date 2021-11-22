@@ -7,12 +7,13 @@ declare -a arr=(0.00001)
 
 for i in "${arr[@]}"
 do
-	COMMAND="python -m src.train_mnist train.regularizer=none nn.classifier=LeNet"
+	COMMAND="python -m src.train_mnist train.regularizer=hebbian_1.0 nn.classifier=Dn_LeNet"
 	echo $COMMAND
 	eval $COMMAND
+
+	# COMMAND="python -m src.train_mnist train.regularizer=hebbian_1.0 nn.classifier=Tdn_LeNet"
+	# echo $COMMAND
+	# eval $COMMAND
 	
-	COMMAND="python -m src.train_mnist"
-	echo $COMMAND
-	eval $COMMAND
 done
 

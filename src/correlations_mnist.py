@@ -19,7 +19,7 @@ from pytorch_utils.analysis import count_parameter
 # Initializers
 from .init import *
 
-from .utils.namers import classifier_ckpt_namer
+from .utils.namers import classifier_ckpt_namer, classifier_params_string
 from .models.custom_layers import LpConv2d
 from .models import LeNet
 
@@ -143,8 +143,9 @@ def main(cfg: DictConfig) -> None:
 
     plt.tight_layout()
 
-    os.makedirs(cfg.directory + "figs/", exist_ok=True)
-    plt.savefig(join(cfg.directory + 'figs', 'correlations_single.pdf'))
+    os.makedirs(cfg.directory + "figs/correlations/", exist_ok=True)
+    plt.savefig(join(cfg.directory + 'figs/correlations/',
+                     classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))+".pdf")
     plt.close()
 
 

@@ -1,7 +1,6 @@
 import ray
 import matplotlib.pyplot as plt
 import torch
-from imageio import mimsave
 import os
 from pygifsicle import optimize
 import numpy as np

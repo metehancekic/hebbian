@@ -22,8 +22,10 @@ __pycache__/
 **/logs/*
 **/figures/*
 **/figs/*
+**/gifs/*
 **/tensorboards/*
 **/outputs/*
+**/multirun/*
 
 
 .env

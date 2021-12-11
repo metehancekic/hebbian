@@ -42,10 +42,10 @@ def main(cfg: DictConfig) -> None:
     model = init_classifier(cfg).to(device)
 
     model = LayerOutputExtractor_wrapper(model, layer_names=["relu1", "relu2"])
-    logger = init_logger(cfg, model.name())
+    logger = init_logger(cfg, model.name)
 
     if not cfg.no_tensorboard:
-        writer = init_tensorboard(cfg, model.name())
+        writer = init_tensorboard(cfg, model.name)
     else:
         writer = None
 
@@ -64,10 +64,8 @@ def main(cfg: DictConfig) -> None:
     for epoch in range(1, cfg.train.epochs+1):
         start_time = time.time()
 
-        regularizer = parse_regularizer(cfg.train.regularizer)
-        tr_loss, tr_acc = standard_epoch(model=model, train_loader=train_loader,
-                                         optimizer=optimizer, regularizer=regularizer,
-                                         tobe_regularized=cfg.train.tobe_regularized, scheduler=scheduler, verbose=False)
+        tr_loss, tr_acc = standard_epoch(cfg=cfg, model=model, train_loader=train_loader,
+                                         optimizer=optimizer, scheduler=scheduler, verbose=False)
         end_time = time.time()
 
         logger.info(f'{epoch} \t {end_time - start_time:.0f} \t {tr_loss:.4f} \t {tr_acc:.4f}')
@@ -82,14 +80,14 @@ def main(cfg: DictConfig) -> None:
 
     # breakpoint()
     save_gif(weight_list, filepath=cfg.directory + "gifs/first_layer/",
-             file_name=classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))
+             file_name=classifier_params_string(model_name=model.name, cfg=cfg))
     save_gif(weight_list2, filepath=cfg.directory + "gifs/second_layer/",
-             file_name=classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))
+             file_name=classifier_params_string(model_name=model.name, cfg=cfg))
 
     # Save checkpoint
     if cfg.save_model:
         os.makedirs(cfg.directory + "checkpoints/classifiers/", exist_ok=True)
-        classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
+        classifier_filepath = classifier_ckpt_namer(model_name=model.name, cfg=cfg)
         torch.save(model.state_dict(), classifier_filepath)
         logger.info(f"Saved to {classifier_filepath}")
 

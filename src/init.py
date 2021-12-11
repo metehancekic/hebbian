@@ -20,7 +20,7 @@ from .data import get_loaders
 from .utils.namers import classifier_params_string, classifier_log_namer
 
 
-from .models.custom_models import topk_LeNet, topk_VGG, T_LeNet, TT_LeNet, Leaky_LeNet, BT_LeNet, NT_LeNet, Nl1T_LeNet, Tdn_LeNet, Dn_LeNet
+from .models.custom_models import topk_LeNet, topk_VGG, T_LeNet, TT_LeNet, Leaky_LeNet, BT_LeNet, NT_LeNet, Nl1T_LeNet, Tdn_LeNet, Dn_LeNet, Custom_LeNet
 from .models import ResNet, VGG, ResNetWide, LeNet
 
 
@@ -54,7 +54,10 @@ def init_dataset(cfg):
 
 
 def init_classifier(cfg):
-    classifier = globals()[cfg.nn.classifier]()
+    if cfg.nn.classifier == "Custom_LeNet":
+        classifier = globals()[cfg.nn.classifier](normalize_input=cfg.nn.normalize_input, implicit_normalization=cfg.nn.implicit_normalization)
+    else:
+        classifier = globals()[cfg.nn.classifier]()
     return classifier
 
 

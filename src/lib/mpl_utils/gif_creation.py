@@ -8,7 +8,7 @@ import numpy as np
 from typing import List
 
 
-@ray.remote(num_returns=1)
+# @ray.remote(num_returns=1)
 def process_weights(weight_list: List[torch.Tensor], k: int):
     weights = weight_list[k]
     mins = torch.amin(weights, dim=(1, 2, 3), keepdim=True)
@@ -48,18 +48,18 @@ def process_weights(weight_list: List[torch.Tensor], k: int):
 
 def save_gif(weight_list: List[torch.Tensor], filepath: str, file_name: str, num_cpus: int = 10):
 
-    try:
-        ray.init(num_cpus=num_cpus, log_to_driver=False)
-    except:
-        pass
-    weight_list_id = ray.put(weight_list)
+    # try:
+    #     ray.init(num_cpus=num_cpus, log_to_driver=False)
+    # except:
+    #     pass
+    # weight_list_id = ray.put(weight_list)
 
-    result_ids = [process_weights.remote(
-        weight_list_id, i) for i in range(len(weight_list))]
+    # result_ids = [process_weights.remote(
+    #     weight_list_id, i) for i in range(len(weight_list))]
 
-    gif_images = ray.get(result_ids)
+    # gif_images = ray.get(result_ids)
 
-    # gif_images=[process_weights(weight_list, i) for i in range(len(weight_list))]
+    gif_images=[process_weights(weight_list, i) for i in range(len(weight_list))]
 
     if not os.path.exists(filepath):
         os.makedirs(filepath)

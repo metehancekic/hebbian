@@ -1,0 +1,31 @@
+[2021-12-09 16:36:09,662][src.init][INFO] - LeNet(
+  (norm): Normalize()
+  (conv1): Conv2d(1, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+  (relu1): ReLU(inplace=True)
+  (conv2): Conv2d(32, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+  (relu2): ReLU(inplace=True)
+  (fc1): Linear(in_features=3136, out_features=1024, bias=True)
+  (fc2): Linear(in_features=1024, out_features=10, bias=True)
+)
+[2021-12-09 16:36:09,663][src.init][INFO] - Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.001
+    weight_decay: 0.0
+)
+[2021-12-09 16:36:09,663][src.init][INFO] - None
+[2021-12-09 16:36:09,663][src.init][INFO] -  Number of total trainable parameters: 3274634
+[2021-12-09 16:36:15,949][src.init][INFO] - 1 	 6 	 -710.4534 	 0.8764
+[2021-12-09 16:36:22,203][src.init][INFO] - 2 	 6 	 -5109.3028 	 0.8927
+[2021-12-09 16:36:28,403][src.init][INFO] - 3 	 6 	 -13456.9227 	 0.7811
+[2021-12-09 16:36:34,600][src.init][INFO] - 4 	 6 	 -25178.8157 	 0.1570
+[2021-12-09 16:36:39,990][src.init][INFO] - 5 	 5 	 -39857.5826 	 0.1124
+[2021-12-09 16:36:46,080][src.init][INFO] - 6 	 6 	 -57190.8387 	 0.1124
+[2021-12-09 16:36:52,252][src.init][INFO] - 7 	 6 	 -76955.1075 	 0.1124
+[2021-12-09 16:36:58,353][src.init][INFO] - 8 	 6 	 -99001.8732 	 0.1124
+[2021-12-09 16:37:04,446][src.init][INFO] - 9 	 6 	 -123226.6310 	 0.1124
+[2021-12-09 16:37:10,524][src.init][INFO] - 10 	 6 	 -149539.9513 	 0.1124
+[2021-12-09 16:37:12,354][src.init][INFO] - Test  	 loss: 2.3011 	 acc: 0.1135
+[2021-12-09 16:37:18,446][src.init][INFO] - 11 	 6 	 -177887.5704 	 0.1124

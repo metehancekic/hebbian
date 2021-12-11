@@ -13,10 +13,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pytorch_utils.loss import saliency_K
+from pytorch_utils.loss import saliency_K, l1_loss
 
 
-def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized, scheduler=None, verbose: bool = False):
+def standard_epoch(cfg, model, train_loader, optimizer, scheduler=None, verbose: bool = False):
     """
     Description: Single epoch,
         if adversarial args are present then adversarial training.
@@ -46,16 +46,19 @@ def standard_epoch(model, train_loader, optimizer, regularizer, tobe_regularized
         loss = cross_ent(output, target)
         # loss = 0
 
-        features = {key: value for key, value in model.layer_outputs.items()
-                    if key in tobe_regularized}
+        if "hebbian" in cfg.train.reg.active:
+            for reg_idx in range(len(cfg.train.reg.hebbian.tobe_regularized)):
+                features = {key: value for key, value in model.layer_outputs.items()
+                            if key == cfg.train.reg.hebbian.tobe_regularized[reg_idx]}
 
-        for reg_idx in range(len(tobe_regularized)):
-            features = {key: value for key, value in model.layer_outputs.items()
-                        if key == tobe_regularized[reg_idx]}
+                loss -= cfg.train.reg.hebbian.scale * torch.mean(saliency_K(features=features,
+                                                                            K=cfg.train.reg.hebbian.k,
+                                                                            saliency_lambda=cfg.train.reg.hebbian.lamda,
+                                                                            dim=1))
 
-            if "hebbian" == regularizer[reg_idx][0]:
-                loss -= regularizer[reg_idx][1] * torch.mean(saliency_K(features=features,
-                                                                        K=5, saliency_lambda=0.1, dim=1))
+        if "l1" in cfg.train.reg.active:
+
+            loss += cfg.train.reg.l1.scale * l1_loss(features=features, dim=(2, 3))
 
         loss.backward()
         optimizer.step()

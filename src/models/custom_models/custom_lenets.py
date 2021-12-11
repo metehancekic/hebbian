@@ -57,6 +57,74 @@ class T_LeNet(nn.Module):
         return f"T_LeNet"
 
 
+class Custom_LeNet(nn.Module):
+
+    # 2 Conv layers, 2 Fc layers
+    def __init__(self, normalize_input: bool=True, implicit_normalization: str="l1", num_classes: int = 10):
+        super().__init__()
+
+        self.normalize_input = normalize_input
+        self.implicit_normalization = implicit_normalization
+
+        self.norm = Normalize(mean=[0.1307], std=[0.3081])
+        self.img = nn.Identity(54, unused_argument1=0.1, unused_argument2=False)
+
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2, bias=False)
+
+        self.dn = DivisiveNormalization2d(sigma=0.1)
+
+        self.relu1 = torch.nn.ReLU()
+
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=5,
+                               stride=1, padding=2, bias=False)
+        self.relu2 = torch.nn.ReLU()
+
+        self.fc1 = nn.Linear(7 * 7 * 64, 100, bias=False)
+        self.relu3 = TReLU(100, layer_type="linear")
+
+        self.fc2 = nn.Linear(100, num_classes, bias=True)
+
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.normalize_input:
+            out = self.norm(x)
+        else:
+            out = self.img(x)
+        out = self.conv1(out)
+        if self.implicit_normalization == "l2":
+            out = out / ((self.conv1.weight**2).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1).sqrt()+1e-8)
+        elif self.implicit_normalization == "l1":
+            out = out / (torch.abs(self.conv1.weight).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1)+1e-8)
+        out = self.relu1(out)
+        # out = self.dn(out)
+        out = F.max_pool2d(out, (2, 2))
+        out = self.conv2(out)
+
+        if self.implicit_normalization == "l2":
+            out = out / ((self.conv2.weight**2).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1).sqrt()+1e-8)
+        elif self.implicit_normalization == "l1":
+            out = out / (torch.abs(self.conv2.weight).sum(dim=(1, 2, 3),
+                                                            keepdim=True).transpose(0, 1)+1e-8)
+
+
+        out = F.max_pool2d(self.relu2(out), (2, 2))
+        out = out.view(out.size(0), -1)
+        out = self.relu3(self.fc1(out))
+        out = self.fc2(out)
+
+        return out
+    
+    @property
+    def name(self) -> str:
+        if self.normalize_input == True:
+            norm = "norm_"
+        else:
+            norm = ""
+        return f"Custom_LeNet_{norm}{self.implicit_normalization}"
+
 class Tdn_LeNet(nn.Module):
 
     # 2 Conv layers, 2 Fc layers

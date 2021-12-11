@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 # PYTORCH UTILS
 from pytorch_utils.visualization import neuron_visualizer
+from mpl_utils import plot_tensors
 
 
 # Initializers
@@ -39,14 +40,21 @@ def main(cfg: DictConfig) -> None:
 
     train_loader, test_loader, data_params = init_dataset(cfg)
 
-    model = init_classifier(cfg)
+    model = init_classifier(cfg).to(device)
 
-    classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
+    # classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
+    # model.load_state_dict(torch.load(
+    #     cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/"+"/LeNet_adam_none_0.0010_none_ep_40.pt"))
+
+    classifier_filepath = classifier_ckpt_namer(model_name=model.name, cfg=cfg)
     model.load_state_dict(torch.load(classifier_filepath))
 
-    neuron_visualizer(model=model, layer_name="relu1",
-                      filter_num=0, save_loc=cfg.directory + "figs/neurons/")
+    layer_name = "conv2"
+    images, visualizations = neuron_visualizer(model=model, layer_name=layer_name, data_loader=test_loader, starting_image="max")
 
+    # breakpoint()
+    plot_tensors(tensor_list=images, filepath=cfg.directory+"figs/neurons/", file_name=model.name+"_starting_images", title="Starting Images")
+    plot_tensors(tensor_list=visualizations, filepath=cfg.directory+"figs/neurons/", file_name=model.name+"_"+layer_name, title="Filter Maximizers")
 
 if __name__ == "__main__":
     main()

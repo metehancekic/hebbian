@@ -3,17 +3,10 @@
 export CUDA_VISIBLE_DEVICES="0"
 export PYTHONPATH="/home/metehan/hebbian/src/lib/"
 
-declare -a arr=(0.00001)
+COMMAND="python -m src.plot_neuron_activators train.regularizer=none nn.classifier=LeNet"
+echo $COMMAND
+eval $COMMAND
 
-for i in "${arr[@]}"
-do
-	# COMMAND="python -m src.plot_activations train.regularizer=hebbian_1.0 nn.classifier=T_LeNet"
-	# echo $COMMAND
-	# eval $COMMAND
-
-	COMMAND="python -m src.plot_neuron_activators train.regularizer=hebbian_1.0 nn.classifier=Dn_LeNet"
-	echo $COMMAND
-	eval $COMMAND
-	
-done
-
+COMMAND="python -m src.plot_neuron_activators --multirun nn.implicit_normalization=l1,l2 nn.normalize_input=false,true"
+echo $COMMAND
+eval $COMMAND

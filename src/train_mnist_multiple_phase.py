@@ -41,10 +41,10 @@ def main(cfg: DictConfig) -> None:
     model = init_classifier(cfg).to(device)
 
     model = LayerOutputExtractor_wrapper(model, layer_names=["img", "relu1", "relu2"])
-    logger = init_logger(cfg, model.name())
+    logger = init_logger(cfg, model.name)
 
     if not cfg.no_tensorboard:
-        writer = init_tensorboard(cfg, model.name())
+        writer = init_tensorboard(cfg, model.name)
     else:
         writer = None
 

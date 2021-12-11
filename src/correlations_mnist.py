@@ -49,12 +49,13 @@ def main(cfg: DictConfig) -> None:
     model_base = LeNet().to(device)
     model_match = init_classifier(cfg).to(device)
 
-    classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
+    classifier_filepath = classifier_ckpt_namer(model_name=model_match.name, cfg=cfg)
     model_match.load_state_dict(torch.load(classifier_filepath))
 
     base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "LeNet_adam_none_0.0010_none_ep_40.pt"
     model_base.load_state_dict(torch.load(base_filepath))
 
+    k = 1
     nb_cols = 1
     nb_rows = 1
     plt.figure(figsize=(10 * nb_cols, 4 * nb_rows))
@@ -82,15 +83,39 @@ def main(cfg: DictConfig) -> None:
 
         # match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
         # base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
-        match_patch = match_out[patch_norms > 0.3].detach().cpu().numpy()
-        base_patch = base_out[patch_norms > 0.3].detach().cpu().numpy()
+        # match_patch = match_out[patch_norms > 0.3].detach().cpu()
+        # base_patch = base_out[patch_norms > 0.3].detach().cpu()
 
-        abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
+        match_out = match_out.cpu().permute(0,2,3,1)
+        match_out = match_out.view(-1, match_out.shape[-1])
+
+        base_out = base_out.cpu().permute(0,2,3,1)
+        base_out = base_out.view(-1, match_out.shape[-1])
+        
+
+        patch_norms = patch_norms.cpu().permute(0,2,3,1)
+        patch_norms = patch_norms.view(-1, patch_norms.shape[-1])
+
+        match_patch = match_out[patch_norms > 0.3].detach().cpu()
+        match_patch = match_patch.view(-1,32)
+
+        base_patch = base_out[patch_norms > 0.3].detach().cpu()
+        base_patch = base_patch.view(-1,32)
+
+
+        maxs_match, _ = torch.topk(match_patch, k, dim=1, sorted=False)
+        maxs_base, _ = torch.topk(base_patch, k, dim=1, sorted=False)
+
+        lows_match, _ = torch.topk(match_patch, k, dim=1, largest=False, sorted=False)
+        lows_base, _ = torch.topk(base_patch, k, dim=1, largest=False, sorted=False)
+
+
+        abs_max = max(np.abs(maxs_match).max(), np.abs(maxs_match).max())
         xlims = (-abs_max, abs_max)
 
         bin_edges = np.linspace(*xlims, 50)
 
-        hist, _ = np.histogram(match_patch, bin_edges, density=True)
+        hist, _ = np.histogram(maxs_match.view(-1), bin_edges, density=True)
 
         color, edgecolor = ("orange", "darkorange")
 
@@ -105,7 +130,7 @@ def main(cfg: DictConfig) -> None:
         plt.step(
             np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
             np.array([0, *hist, 0]),
-            label=r"Hebbian model",
+            label=f"Hebbian model top {k}",
             where="pre",
             color=edgecolor,
             )
@@ -114,8 +139,34 @@ def main(cfg: DictConfig) -> None:
         ax.spines["left"].set_visible(False)
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
+        plt.grid()
 
-        hist, _ = np.histogram(base_patch, bin_edges, density=True)
+        # hist, _ = np.histogram(lows_match.view(-1), bin_edges, density=True)
+
+        # color, edgecolor = ("cyan", "darkturquoise")
+
+        # plt.bar(
+        #     bin_edges[:-1] + np.diff(bin_edges) / 2,
+        #     hist,
+        #     width=(bin_edges[1] - bin_edges[0]),
+        #     alpha=0.5,
+        #     edgecolor="none",
+        #     color=color,
+        #     )
+        # plt.step(
+        #     np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+        #     np.array([0, *hist, 0]),
+        #     label=f"Hebbian model bottom {k}",
+        #     where="pre",
+        #     color=edgecolor,
+        #     )
+        # ax = plt.gca()
+        # ax.spines["right"].set_visible(False)
+        # ax.spines["left"].set_visible(False)
+        # ax.spines["top"].set_visible(False)
+        # ax.get_yaxis().set_visible(False)
+
+        hist, _ = np.histogram(maxs_base.view(-1), bin_edges, density=True)
 
         color, edgecolor = ("steelblue", "steelblue")
 
@@ -130,7 +181,7 @@ def main(cfg: DictConfig) -> None:
         plt.step(
             np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
             np.array([0, *hist, 0]),
-            label=r"Base model",
+            label=f"Base model top {k}",
             where="pre",
             color=edgecolor,
             )
@@ -139,13 +190,39 @@ def main(cfg: DictConfig) -> None:
         ax.spines["left"].set_visible(False)
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
+
+        # hist, _ = np.histogram(lows_base.view(-1), bin_edges, density=True)
+
+        # color, edgecolor = ("mistyrose", "salmon")
+
+        # plt.bar(
+        #     bin_edges[:-1] + np.diff(bin_edges) / 2,
+        #     hist,
+        #     width=(bin_edges[1] - bin_edges[0]),
+        #     alpha=0.5,
+        #     edgecolor="none",
+        #     color=color,
+        #     )
+        # plt.step(
+        #     np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+        #     np.array([0, *hist, 0]),
+        #     label=f"Base model bottom {k}",
+        #     where="pre",
+        #     color=edgecolor,
+        #     )
+        # ax = plt.gca()
+        # ax.spines["right"].set_visible(False)
+        # ax.spines["left"].set_visible(False)
+        # ax.spines["top"].set_visible(False)
+        # ax.get_yaxis().set_visible(False)
+
         plt.legend()
 
     plt.tight_layout()
 
     os.makedirs(cfg.directory + "figs/correlations/", exist_ok=True)
     plt.savefig(join(cfg.directory + 'figs/correlations/',
-                     classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))+".pdf")
+                     classifier_params_string(model_name=model_match.name, cfg=cfg))+".pdf")
     plt.close()
 
 

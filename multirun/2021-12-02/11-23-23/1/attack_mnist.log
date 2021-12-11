@@ -1,0 +1,22 @@
+[2021-12-02 11:23:30,184][src.init][INFO] - Custom_LeNet(
+  (norm): Normalize()
+  (img): Identity()
+  (conv1): Conv2d(1, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+  (dn): DivisiveNormalization2d(b_type=linf, b_size=(5, 5), sigma=0.1)
+  (relu1): ReLU()
+  (conv2): Conv2d(32, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+  (relu2): ReLU()
+  (fc1): Linear(in_features=3136, out_features=100, bias=False)
+  (relu3): TReLU(100)
+  (fc2): Linear(in_features=100, out_features=10, bias=True)
+)
+[2021-12-02 11:23:30,185][src.init][INFO] - Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.001
+    weight_decay: 0.0
+)
+[2021-12-02 11:23:30,185][src.init][INFO] - None
+[2021-12-02 11:23:30,185][src.init][INFO] -  Number of total trainable parameters: 366610

@@ -1,10 +1,12 @@
-directory: "/home/metehan/hebbian/"
-tensorboard_location: "statistics/"
-data_dir: "/data/datasets"
-dataset: "mnist"
+directory: ! "/home/metehan/hebbian/"
+tensorboard_location: ! "statistics/"
+data_dir: ! "/data/datasets"
+dataset: ! "mnist"
 
 nn:
-  classifier: "T_LeNet"
+  classifier: ! "Custom_LeNet"
+  implicit_normalization: ! "l2"
+  normalize_input: false
   lr: 0.001
   lr_min: 0.0
   lr_max: 0.001
@@ -17,12 +19,37 @@ nn:
 train:
   batch_size: 128
   epochs: 40
-  regularizer: "hebbian_1.0"
-  tobe_regularized:
-    - relu1
+  reg:
+    active:
+      - hebbian
+      - l1
+    hebbian:
+      scale: 1.0
+      k: 1
+      lamda: 0.5
+      dim: 1
+      tobe_regularized:
+        - relu1
+        - relu2
+    l1:
+      scale: 0.000001
+  
   
 test:
   batch_size: 1000
+
+attack:
+  norm: "inf"
+  epsilon: 0.2
+  alpha: 0.4
+  step_size: 0.05
+  num_steps: 30
+  random: false
+  num_restarts: 1
+  EOT_size: 1
+  loss: "cross_entropy"
+
+
 
 no_cuda: false
 seed: 2022

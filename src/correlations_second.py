@@ -48,19 +48,22 @@ def main(cfg: DictConfig) -> None:
 
     lp_norm_extractor = LpConv2d(in_channels=32, out_channels=1,
                                  kernel_size=5, stride=1, padding=2, bias=False, p_norm=2).to(device)
+    
     model_base = LeNet().to(device)
-    model_match = init_classifier(cfg).to(device)
+
+    model = init_classifier(cfg).to(device)
 
     model_base = LayerOutputExtractor_wrapper(model_base, layer_names=["relu1", "conv2"])
 
-    model_match = LayerOutputExtractor_wrapper(model_match, layer_names=["relu1", "conv2"])
+    model = LayerOutputExtractor_wrapper(model, layer_names=["relu1", "conv2"])
 
-    classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
-    model_match.load_state_dict(torch.load(classifier_filepath))
+    classifier_filepath = classifier_ckpt_namer(model_name=model.name, cfg=cfg)
+    model.load_state_dict(torch.load(classifier_filepath))
 
     base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "LeNet_adam_none_0.0010_none_ep_40.pt"
     model_base.load_state_dict(torch.load(base_filepath))
 
+    k=1
     nb_cols = 1
     nb_rows = 1
     plt.figure(figsize=(10 * nb_cols, 4 * nb_rows))
@@ -72,14 +75,14 @@ def main(cfg: DictConfig) -> None:
         img = img.to(device)
 
         _ = model_base(img.unsqueeze(0))
-        _ = model_match(img.unsqueeze(0))
+        _ = model(img.unsqueeze(0))
 
         patch_norms_base = lp_norm_extractor(
             F.max_pool2d(model_base.layer_outputs["relu1"], (2, 2)))
         patch_norms_base = torch.repeat_interleave(patch_norms_base, 64, dim=1)
 
         patch_norms_match = lp_norm_extractor(
-            F.max_pool2d(model_match.layer_outputs["relu1"], (2, 2)))
+            F.max_pool2d(model.layer_outputs["relu1"], (2, 2)))
         patch_norms_match = torch.repeat_interleave(patch_norms_match, 64, dim=1)
 
         base_out = model_base.layer_outputs["conv2"]
@@ -89,22 +92,47 @@ def main(cfg: DictConfig) -> None:
 
         base_out /= (patch_norms_base*weight_base + 1e-8)
 
-        match_out = model_match.layer_outputs["conv2"]
-        weight_match = (model_match.conv2.weight**2).sum(dim=(1, 2, 3),
+        match_out = model.layer_outputs["conv2"]
+        weight_match = (model.conv2.weight**2).sum(dim=(1, 2, 3),
                                                          keepdim=True).transpose(0, 1).sqrt()
         match_out /= (patch_norms_match*weight_match + 1e-8)
 
         # match_patch = match_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
         # base_patch = base_out.squeeze().detach().cpu().numpy()[:, 10:18, 10:18]
-        match_patch = match_out[patch_norms_match > 0.1].detach().cpu().numpy()
-        base_patch = base_out[patch_norms_base > 0.1].detach().cpu().numpy()
+        match_out = match_out.cpu().permute(0,2,3,1)
+        match_out = match_out.view(-1, match_out.shape[-1])
 
-        abs_max = max(np.abs(match_patch).max(), np.abs(match_patch).max())
+        base_out = base_out.cpu().permute(0,2,3,1)
+        base_out = base_out.view(-1, match_out.shape[-1])
+        
+        patch_norms_match = patch_norms_match.cpu().permute(0,2,3,1)
+        patch_norms_match = patch_norms_match.view(-1, patch_norms_match.shape[-1])
+        
+        patch_norms_base = patch_norms_base.cpu().permute(0,2,3,1)
+        patch_norms_base = patch_norms_base.view(-1, patch_norms_base.shape[-1])
+
+        match_patch = match_out[patch_norms_match > 0.1].detach().cpu()
+        match_patch = match_patch.view(-1,32)
+
+        base_patch = base_out[patch_norms_base > 0.1].detach().cpu()
+        base_patch = base_patch.view(-1,32)    
+
+        # match_patch = match_out[patch_norms_match > 0.1].detach().cpu()
+        # base_patch = base_out[patch_norms_base > 0.1].detach().cpu()
+
+        maxs_match, _ = torch.topk(match_patch, k, dim=1, sorted=False)
+        maxs_base, _ = torch.topk(base_patch, k, dim=1, sorted=False)
+
+        lows_match, _ = torch.topk(match_patch, k, dim=1, largest=False, sorted=False)
+        lows_base, _ = torch.topk(base_patch, k, dim=1, largest=False, sorted=False)
+
+
+        abs_max = max(np.abs(maxs_match).max(), np.abs(maxs_match).max())
         xlims = (-abs_max, abs_max)
 
         bin_edges = np.linspace(*xlims, 50)
 
-        hist, _ = np.histogram(match_patch, bin_edges, density=True)
+        hist, _ = np.histogram(maxs_match, bin_edges, density=True)
 
         color, edgecolor = ("orange", "darkorange")
 
@@ -119,7 +147,7 @@ def main(cfg: DictConfig) -> None:
         plt.step(
             np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
             np.array([0, *hist, 0]),
-            label=r"Hebbian model",
+            label=f"Hebbian model top {k}",
             where="pre",
             color=edgecolor,
             )
@@ -129,7 +157,7 @@ def main(cfg: DictConfig) -> None:
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
 
-        hist, _ = np.histogram(base_patch, bin_edges, density=True)
+        hist, _ = np.histogram(maxs_base, bin_edges, density=True)
 
         color, edgecolor = ("steelblue", "steelblue")
 
@@ -144,7 +172,7 @@ def main(cfg: DictConfig) -> None:
         plt.step(
             np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
             np.array([0, *hist, 0]),
-            label=r"Base model",
+            label=f"Base model top {k}",
             where="pre",
             color=edgecolor,
             )
@@ -154,11 +182,14 @@ def main(cfg: DictConfig) -> None:
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
         plt.legend()
+        plt.grid()
 
     plt.tight_layout()
 
+
+
     os.makedirs(cfg.directory + "figs/", exist_ok=True)
-    plt.savefig(join(cfg.directory + 'figs', 'correlations_second_single.pdf'))
+    plt.savefig(join(cfg.directory + 'figs', model.name+"_"+"second" + ".pdf"))
     plt.close()
 
 

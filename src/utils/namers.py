@@ -17,7 +17,11 @@ def classifier_params_string(model_name: str, cfg: DictConfig):
     else:
         classifier_params_string += f"_{cfg.nn.lr:.4f}"
 
-    classifier_params_string += f"_{cfg.train.regularizer}"
+    if "hebbian" in cfg.train.reg.active:
+        classifier_params_string += f"_hebbian_{'_'.join([str(x) for x in cfg.train.reg.hebbian.values()])}"
+
+    if "l1" in cfg.train.reg.active:
+        classifier_params_string += f"_l1_{'_'.join([str(x) for x in cfg.train.reg.l1.values()])}"
 
     classifier_params_string += f"_ep_{cfg.train.epochs}"
 

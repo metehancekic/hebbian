@@ -21,7 +21,7 @@ from mpl_utils.gif_creation import save_gif
 # Initializers
 from .init import *
 
-from .utils.namers import classifier_ckpt_namer
+from .utils.namers import classifier_ckpt_namer, classifier_params_string
 from .models.custom_layers import LpConv2d
 from .models import LeNet
 from .models.custom_models import topk_LeNet, topk_VGG, T_LeNet, TT_LeNet, Leaky_LeNet, BT_LeNet, NT_LeNet, Nl1T_LeNet
@@ -47,16 +47,13 @@ def main(cfg: DictConfig) -> None:
 
     train_loader, test_loader, data_params = init_dataset(cfg)
 
-    model_base = T_LeNet()
-    model_match = init_classifier(cfg)
+    model = init_classifier(cfg)
 
     classifier_filepath = classifier_ckpt_namer(model_name=cfg.nn.classifier, cfg=cfg)
-    model_match.load_state_dict(torch.load(classifier_filepath))
+    model.load_state_dict(torch.load(classifier_filepath))
 
-    base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "T_LeNet_adam_none_0.0010_hebbian_1.0_ep_40.pt"
-    model_base.load_state_dict(torch.load(base_filepath))
-
-    save_gif([model_base.conv1.weight.detach()], filepath=cfg.directory + "gifs/matched/")
+    save_gif([model.conv1.weight.detach()], filepath=cfg.directory + "figs/weights/",
+             file_name=classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))
 
 
 if __name__ == "__main__":

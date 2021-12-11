@@ -54,7 +54,7 @@ def main(cfg: DictConfig) -> None:
     _ = model(imgs)
 
     plot_activations(model.layer_outputs["relu1"][0].detach().cpu(), filepath=cfg.directory +
-                     "figs/activations/", file_name=classifier_params_string(model_name=cfg.nn.classifier, cfg=cfg))
+                     "figs/activations/", file_name=classifier_params_string(model_name=model.name, cfg=cfg))
 
 
 if __name__ == "__main__":

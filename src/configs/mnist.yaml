@@ -22,15 +22,13 @@ train:
   reg:
     active:
       - hebbian
-      - l1
     hebbian:
       scale: 1.0
-      k: 1
-      lamda: 0.5
+      k: 5
+      lamda: 0.1
       dim: 1
       tobe_regularized:
         - relu1
-        - relu2
     l1:
       scale: 0.000001
   

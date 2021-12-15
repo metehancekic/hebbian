@@ -16,6 +16,8 @@ from deepillusion.torchattacks import FGSM, RFGSM, PGD, PGD_EOT
 from pytorch_utils.surgery import LayerOutputExtractor_wrapper
 from pytorch_utils.analysis import count_parameter
 
+from mpl_utils import plot_filters
+
 # Initializers
 from .init import *
 
@@ -49,13 +51,17 @@ def main(cfg: DictConfig) -> None:
     model_base = LeNet().to(device)
     model_match = init_classifier(cfg).to(device)
 
-    classifier_filepath = classifier_ckpt_namer(model_name=model_match.name, cfg=cfg)
+    # classifier_filepath = classifier_ckpt_namer(model_name=model_match.name, cfg=cfg)
+    classifier_filepath = "/home/metehan/hebbian/checkpoints/classifiers/mnist/T_LeNet_adam_none_0.0010_hebbian_1.0_ep_40.pt"
     model_match.load_state_dict(torch.load(classifier_filepath))
+
+    plot_filters(model_match.conv1.weight.squeeze().detach().cpu(),
+                 cfg.directory + 'figs/filters/', classifier_params_string(model_name=model_match.name, cfg=cfg))
 
     base_filepath = cfg.directory + f"checkpoints/classifiers/{cfg.dataset}/" + "LeNet_adam_none_0.0010_none_ep_40.pt"
     model_base.load_state_dict(torch.load(base_filepath))
 
-    k = 1
+    k = 8
     nb_cols = 1
     nb_rows = 1
     plt.figure(figsize=(10 * nb_cols, 4 * nb_rows))
@@ -141,30 +147,30 @@ def main(cfg: DictConfig) -> None:
         ax.get_yaxis().set_visible(False)
         plt.grid()
 
-        # hist, _ = np.histogram(lows_match.view(-1), bin_edges, density=True)
+        hist, _ = np.histogram(lows_match.view(-1), bin_edges, density=True)
 
-        # color, edgecolor = ("cyan", "darkturquoise")
+        color, edgecolor = ("cyan", "darkturquoise")
 
-        # plt.bar(
-        #     bin_edges[:-1] + np.diff(bin_edges) / 2,
-        #     hist,
-        #     width=(bin_edges[1] - bin_edges[0]),
-        #     alpha=0.5,
-        #     edgecolor="none",
-        #     color=color,
-        #     )
-        # plt.step(
-        #     np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
-        #     np.array([0, *hist, 0]),
-        #     label=f"Hebbian model bottom {k}",
-        #     where="pre",
-        #     color=edgecolor,
-        #     )
-        # ax = plt.gca()
-        # ax.spines["right"].set_visible(False)
-        # ax.spines["left"].set_visible(False)
-        # ax.spines["top"].set_visible(False)
-        # ax.get_yaxis().set_visible(False)
+        plt.bar(
+            bin_edges[:-1] + np.diff(bin_edges) / 2,
+            hist,
+            width=(bin_edges[1] - bin_edges[0]),
+            alpha=0.5,
+            edgecolor="none",
+            color=color,
+            )
+        plt.step(
+            np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+            np.array([0, *hist, 0]),
+            label=f"Hebbian model bottom {k}",
+            where="pre",
+            color=edgecolor,
+            )
+        ax = plt.gca()
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.get_yaxis().set_visible(False)
 
         hist, _ = np.histogram(maxs_base.view(-1), bin_edges, density=True)
 
@@ -191,30 +197,30 @@ def main(cfg: DictConfig) -> None:
         ax.spines["top"].set_visible(False)
         ax.get_yaxis().set_visible(False)
 
-        # hist, _ = np.histogram(lows_base.view(-1), bin_edges, density=True)
+        hist, _ = np.histogram(lows_base.view(-1), bin_edges, density=True)
 
-        # color, edgecolor = ("mistyrose", "salmon")
+        color, edgecolor = ("mistyrose", "salmon")
 
-        # plt.bar(
-        #     bin_edges[:-1] + np.diff(bin_edges) / 2,
-        #     hist,
-        #     width=(bin_edges[1] - bin_edges[0]),
-        #     alpha=0.5,
-        #     edgecolor="none",
-        #     color=color,
-        #     )
-        # plt.step(
-        #     np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
-        #     np.array([0, *hist, 0]),
-        #     label=f"Base model bottom {k}",
-        #     where="pre",
-        #     color=edgecolor,
-        #     )
-        # ax = plt.gca()
-        # ax.spines["right"].set_visible(False)
-        # ax.spines["left"].set_visible(False)
-        # ax.spines["top"].set_visible(False)
-        # ax.get_yaxis().set_visible(False)
+        plt.bar(
+            bin_edges[:-1] + np.diff(bin_edges) / 2,
+            hist,
+            width=(bin_edges[1] - bin_edges[0]),
+            alpha=0.5,
+            edgecolor="none",
+            color=color,
+            )
+        plt.step(
+            np.array([*bin_edges, bin_edges[-1] + (bin_edges[1] - bin_edges[0])]),
+            np.array([0, *hist, 0]),
+            label=f"Base model bottom {k}",
+            where="pre",
+            color=edgecolor,
+            )
+        ax = plt.gca()
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.get_yaxis().set_visible(False)
 
         plt.legend()
 
@@ -222,7 +228,7 @@ def main(cfg: DictConfig) -> None:
 
     os.makedirs(cfg.directory + "figs/correlations/", exist_ok=True)
     plt.savefig(join(cfg.directory + 'figs/correlations/',
-                     classifier_params_string(model_name=model_match.name, cfg=cfg))+".pdf")
+                     classifier_params_string(model_name=model_match.name, cfg=cfg))+f"_{k}.pdf")
     plt.close()
 
 

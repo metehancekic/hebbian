@@ -52,7 +52,8 @@ class T_LeNet(nn.Module):
         out = self.fc2(out)
 
         return out
-
+    
+    @property
     def name(self) -> str:
         return f"T_LeNet"
 
